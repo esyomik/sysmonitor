@@ -1,0 +1,17 @@
+*.pdb
+*.ipdb
+*.idb
+*.obj
+*.iobj
+*.lib
+*.ilk
+*.tlog
+*.log
+*.exe
+*.dll
+*.png
+*.jpg
+**/out/**/
+**/packages/**/
+**/.vs/
+**/.vscode/
