@@ -1,0 +1,22 @@
+{
+    "brokers": "WS329.i.sigmaukraine.com:9092",
+    "topic": "test",
+    "period": 1,
+    "metrics": [
+        {
+            "id" : "PTP",
+            "name": "CPU total time, percent",
+            "counter": "\\Processor(_Total)\\% Processor Time"
+        },
+        {
+            "id": "MUP",
+            "name": "Physical memory usage, percent",
+            "counter": "\\Memory\\% Committed Bytes In Use"
+        },
+        {
+            "id": "DRWP",
+            "name": "Physical disk read/write, percent",
+            "counter": "\\PhysicalDisk(_Total)\\% Disk Time"
+        }
+    ]
+}
