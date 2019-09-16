@@ -1,7 +1,6 @@
 #include "message-payload.hpp"
 
 
-
 MessagePayload::MessagePayload() {}
 
 

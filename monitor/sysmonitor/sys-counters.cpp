@@ -6,7 +6,7 @@
 
 SysCounters::SysCounters() {
     query_ = INVALID_HANDLE_VALUE;
-    PdhOpenQueryA(NULL, 0, &query_);
+    PdhOpenQueryA(nullptr, 0, &query_);
 }
 
 
@@ -33,7 +33,7 @@ void SysCounters::collect() const {
 }
 
 
-int SysCounters::getMetricsCount() const {
+int SysCounters::count() const {
     return counters_.size();
 }
 
@@ -53,7 +53,7 @@ bool SysCounters::serialize(MessagePayload& data) const {
         return false;
     }
 
-    data.reserve(getMetricsCount() * 12);
+    data.reserve(count() * 16);
     for (const auto& m : counters_) {
         data.add(m.id_.c_str(), m.getMetrics());
     }
@@ -82,6 +82,6 @@ SysCounters::METRICS::METRICS(const std::string& id, const std::string& name, PD
 
 double SysCounters::METRICS::getMetrics() const {
     PDH_FMT_COUNTERVALUE value;
-    PdhGetFormattedCounterValue(counter_, PDH_FMT_DOUBLE, NULL, &value);
+    PdhGetFormattedCounterValue(counter_, PDH_FMT_DOUBLE, nullptr, &value);
     return value.doubleValue;
 }
