@@ -4,19 +4,19 @@
     "period": 1,
     "metrics": [
         {
-            "id" : "PTP",
             "name": "CPU total time, percent",
-            "counter": "\\Processor(_Total)\\% Processor Time"
+            "counter": "\\Processor(_Total)\\% Processor Time",
+            "kind":  "PERCENT"
         },
         {
-            "id": "MUP",
             "name": "Physical memory usage, percent",
-            "counter": "\\Memory\\% Committed Bytes In Use"
+            "counter": "\\Memory\\% Committed Bytes In Use",
+            "kind": "PERCENT"
         },
         {
-            "id": "DRWP",
             "name": "Physical disk read/write, percent",
-            "counter": "\\PhysicalDisk(_Total)\\% Disk Time"
+            "counter": "\\PhysicalDisk(_Total)\\% Disk Time",
+            "kind": "PERCENT"
         }
     ]
 }

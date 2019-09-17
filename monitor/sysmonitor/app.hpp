@@ -13,19 +13,19 @@ public:
     ~App();
 
     void create(const char* brokers, const char* topicName);
+    void destroy();
     void flush(int timeoutMsec) const;
-    bool send(const MessagePayload& data) const;
     void run(const SysCounters& counters, int sendPeriod) const;
 
     const char* getLastError() const;
 
 private:
-    bool send(const void* buffer, size_t length) const;
-    static void addComputerName(MessagePayload& data);
+    bool send(const void* buffer, size_t length, rd_kafka_headers_t* headers) const;
+    rd_kafka_headers_t* createHeaders(const SysCounters& counters) const;
 
 private:
     rd_kafka_t* producer_;
-    rd_kafka_topic_t* topic_;
+    std::string topicName_;
 
 };
 

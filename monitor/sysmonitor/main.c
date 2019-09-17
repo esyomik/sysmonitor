@@ -24,10 +24,10 @@ int main(int argc, char **argv) {
         SysCounters counters;
         auto metrics = config["metrics"];
         for (const auto& m : metrics) {
-            counters.addMetrics(m["id"].get<std::string>(), m["name"].get<std::string>(), m["counter"].get<std::string>());
+            counters.addMetrics(m["name"].get<std::string>(), m["counter"].get<std::string>(), m["kind"].get<std::string>());
         }
 
-        // uncomment follow row for testing your own metrics
+        // uncomment next row for testing your own metrics only
         //return counters.traceMetrics(counters, 10);
 
         auto brokers = config["brokers"].get<std::string>();
