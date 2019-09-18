@@ -14,15 +14,22 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 
-public class PerformanceMonitor implements Runnable {
+public class PerformanceMonitor {
 
     private String topic;
+    private PerfRecorder recorder;
     private KafkaConsumer<String, String> consumer;
     private ExecutorService executor;
 
 
-    public PerformanceMonitor(Configuration configuration) {
-        topic = configuration.topic;
+    /**
+     * Constructs monitor.
+     * @param configuration the configuration to initialize monitor, see {@link Configuration}
+     * @param recorder the performance metrics recorder, see {@link PerfRecorder}
+     */
+    public PerformanceMonitor(Configuration configuration, PerfRecorder recorder) {
+        this.topic = configuration.topic;
+        this.recorder = recorder;
         Properties props = new Properties();
         props.put("bootstrap.servers", configuration.brokers);
         props.put("group.id", configuration.groupId); // TODO add hostname to groupId
@@ -31,19 +38,35 @@ public class PerformanceMonitor implements Runnable {
         props.put("key.deserializer", StringDeserializer.class.getName());
         props.put("value.deserializer", StringDeserializer.class.getName());
         this.consumer = new KafkaConsumer<>(props);
+        this.executor = Executors.newFixedThreadPool(1);
     }
 
+    /**
+     * Runs monitoring performance metrics.
+     */
     public void startMonitor() {
-        executor = Executors.newFixedThreadPool(1);
-        executor.submit(this);
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                stopMonitor();
+        executor.submit(() -> {
+            System.out.println("Running consumer...");
+            try {
+                consumer.subscribe(Collections.singleton(topic));
+                while (true) {
+                    ConsumerRecords<String, String> records = consumer.poll(Duration.ofDays(7));
+                    for (ConsumerRecord<String, String> record : records) {
+                        recorder.write(record);
+                    }
+                }
+            } catch (WakeupException exception) {
+                /*SUPPRESSED*/
+            } finally {
+                consumer.close();
             }
         });
+        Runtime.getRuntime().addShutdownHook(new Thread(this::stopMonitor));
     }
 
+    /**
+     * Stops monitoring performance metrics.
+     */
     public void stopMonitor() {
         if (executor == null) {
             return;
@@ -57,27 +80,4 @@ public class PerformanceMonitor implements Runnable {
         } catch (InterruptedException exception) {/*SUPPRESSED*/}
     }
 
-    @Override
-    public void run() {
-        System.out.println("Runs consumer...");
-        try {
-            consumer.subscribe(Collections.singleton(topic));
-            while (true) {
-                ConsumerRecords<String, String> records = consumer.poll(Duration.ofDays(7));
-                for (ConsumerRecord<String, String> record : records) {
-                    processRecord(record);
-                }
-            }
-        } catch (WakeupException exception) {
-            /*SUPPRESSED*/
-        } finally {
-            consumer.close();
-        }
-    }
-
-    private void processRecord(ConsumerRecord<String, String> record) {
-        System.out.format("#%s. Partition: %s, offset: %s, timestamp: %s, value: %s. Headers: %s\n",
-                record.key(), record.partition(), record.offset(),
-                record.timestamp(), record.value(), record.headers());
-    }
 }

@@ -8,17 +8,17 @@ import java.io.FileReader;
 
 public class Configuration {
 
-    public String brokers;
-    public String topic;
-    public String groupId;
-    public int period;
+    String brokers;
+    String topic;
+    String groupId;
+    long period;
 
 
     private Configuration() {
         brokers = "";
         topic = "";
         groupId = "";
-        period = 2;
+        period = 2L;
     }
 
     public static Configuration load(String file) {
@@ -29,5 +29,9 @@ public class Configuration {
         } catch (Exception exception) {
             return new Configuration();
         }
+    }
+
+    public long updatePeriod() {
+        return period;
     }
 }
