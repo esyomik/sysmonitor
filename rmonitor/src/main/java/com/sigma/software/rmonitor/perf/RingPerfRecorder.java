@@ -2,8 +2,9 @@ package com.sigma.software.rmonitor.perf;
 
 import com.sigma.software.rmonitor.client.PerfRecorder;
 import com.sigma.software.rmonitor.data.ObservableHosts;
-import com.sigma.software.rmonitor.data.PerfMetrics;
+import com.sigma.software.rmonitor.data.PerfCounters;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
 
 import java.util.HashMap;
@@ -11,9 +12,15 @@ import java.util.Map;
 import java.util.Set;
 
 
-public class RingPerfRecorder implements PerfRecorder, ObservableHosts {
+/**
+ * Implementation of the metrics recorder. This class implements two interfaces:
+ * {@link PerfRecorder} and {@link ObservableHosts}. Result of measurements are
+ * written to a cyclic buffer.
+ * @param <D> type of recording data
+ */
+public class RingPerfRecorder<D> implements PerfRecorder<D>, ObservableHosts<D> {
 
-    private Map<String, RingPerfMetrics> perfData;
+    private Map<String, RingPerfMetrics<D>> perfData;
     private int dataSize;
 
 
@@ -23,15 +30,14 @@ public class RingPerfRecorder implements PerfRecorder, ObservableHosts {
     }
 
     @Override
-    public void write(ConsumerRecord<String, String> record) {
-        System.out.format("#%s. Partition: %s, offset: %s, timestamp: %s, value: %s. Headers: %s\n",
-                record.key(), record.partition(), record.offset(),
-                record.timestamp(), record.value(), record.headers());
-
-        RingPerfMetrics metrics = getOrAddMetrics(record.key());
+    public void write(ConsumerRecord<String, D> record) {
+        RingPerfMetrics<D> metrics = getOrAddMetrics(record.key());
         Headers headers = record.headers();
         if (headers != null) {
-            metrics.setHeaders(headers.toArray());
+            Header[] headerArray = headers.toArray();
+            if (headerArray.length > 0) {
+                metrics.setHeaders(headerArray);
+            }
         }
         metrics.add(record.value(), record.timestamp());
     }
@@ -42,18 +48,18 @@ public class RingPerfRecorder implements PerfRecorder, ObservableHosts {
     }
 
     @Override
-    public PerfMetrics getMetrics(String hostName) {
+    public PerfCounters<D> getMetrics(String hostName) {
         return perfData.get(hostName);
     }
 
 
-    private RingPerfMetrics getOrAddMetrics(String hostName) {
-        RingPerfMetrics metrics = perfData.get(hostName);
+    private RingPerfMetrics<D> getOrAddMetrics(String hostName) {
+        RingPerfMetrics<D> metrics = perfData.get(hostName);
         if (metrics != null) {
             return metrics;
         }
 
-        RingPerfMetrics newMetrics = new RingPerfMetrics(dataSize);
+        RingPerfMetrics<D> newMetrics = new RingPerfMetrics<>(dataSize);
         perfData.put(hostName, newMetrics);
         return newMetrics;
     }

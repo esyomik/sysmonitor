@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 public class PerformanceMonitor {
 
     private String topic;
-    private PerfRecorder recorder;
+    private PerfRecorder<String> recorder;
     private KafkaConsumer<String, String> consumer;
     private ExecutorService executor;
 
@@ -27,7 +27,7 @@ public class PerformanceMonitor {
      * @param configuration the configuration to initialize monitor, see {@link Configuration}
      * @param recorder the performance metrics recorder, see {@link PerfRecorder}
      */
-    public PerformanceMonitor(Configuration configuration, PerfRecorder recorder) {
+    public PerformanceMonitor(Configuration configuration, PerfRecorder<String> recorder) {
         this.topic = configuration.topic;
         this.recorder = recorder;
         Properties props = new Properties();

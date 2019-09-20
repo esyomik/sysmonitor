@@ -1,7 +1,7 @@
 package com.sigma.software.rmonitor.ui;
 
 import com.sigma.software.rmonitor.data.ObservableHosts;
-import com.sigma.software.rmonitor.data.PerfMetrics;
+import com.sigma.software.rmonitor.data.PerfCounters;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
@@ -15,23 +15,24 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 
-public class ComputerList {
+class ComputerList {
 
     private static final Image COMPUTER_ACTIVE = new Image("image/Devices-computer.png");
     private static final Image COMPUTER_INACTIVE = new Image("image/Devices-computer-gray.png");
     private static final long INACTIVE_TIME = TimeUnit.SECONDS.toMillis(16);
 
-    private ObservableHosts hosts;
-    private ObservableList<String> computers;
+    private CountersView metricsView;
+    private ObservableHosts<String> hosts;
     private ListView<String> view;
 
-    public ComputerList(ObservableHosts hosts) {
+
+    ComputerList(CountersView metricsView, ObservableHosts<String> hosts) {
+        this.metricsView = metricsView;
         this.hosts = hosts;
     }
 
-    public Node create() {
-        computers = FXCollections.observableArrayList();
-        view = new ListView<String>(computers);
+    Node create() {
+        view = new ListView<>(FXCollections.observableArrayList());
         view.setMinSize(64.0, 128.0);
         view.setPrefSize(160.0, 300.0);
         view.setCellFactory(param -> new ListCell<String>() {
@@ -45,18 +46,21 @@ public class ComputerList {
                     return;
                 }
                 setText(name);
-                PerfMetrics metrics = hosts.getMetrics(name);
-                Image image = metrics == null || System.currentTimeMillis() - metrics.getLastTimeStamp() > INACTIVE_TIME ?
-                        COMPUTER_INACTIVE : COMPUTER_ACTIVE;
-                imageView.setImage(image);
+                PerfCounters metrics = hosts.getMetrics(name);
+                imageView.setImage(metrics == null ||
+                        System.currentTimeMillis() - metrics.getLastTimeStamp() > INACTIVE_TIME ?
+                        COMPUTER_INACTIVE : COMPUTER_ACTIVE);
                 setGraphic(imageView);
             }
         });
+        view.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue)
+                -> metricsView.setCounters(hosts.getMetrics(newValue)));
         return view;
     }
 
-    public void update() {
+    void update() {
         Set<String> hostNames = hosts.getObservedHostNames();
+        ObservableList<String> computers = view.getItems();
 
         if (hostNames.size() != computers.size() || !hostNames.containsAll(computers)) {
             MultipleSelectionModel<String> selected = view.getSelectionModel();
@@ -74,6 +78,13 @@ public class ComputerList {
             }
         }
 
-        view.refresh();
+        if (hostStatusChanged()) {
+            view.refresh();
+        }
+    }
+
+    // TODO implement it to prevent blinking
+    private boolean hostStatusChanged() {
+        return true;
     }
 }

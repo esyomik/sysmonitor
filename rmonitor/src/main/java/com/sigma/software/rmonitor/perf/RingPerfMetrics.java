@@ -2,7 +2,7 @@ package com.sigma.software.rmonitor.perf;
 
 import com.sigma.software.rmonitor.data.MetricsInfo;
 import com.sigma.software.rmonitor.data.MetricsKind;
-import com.sigma.software.rmonitor.data.PerfMetrics;
+import com.sigma.software.rmonitor.data.PerfCounters;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.apache.kafka.common.header.Header;
 
@@ -11,10 +11,10 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class RingPerfMetrics implements PerfMetrics {
+public class RingPerfMetrics<T> implements PerfCounters<T> {
 
     private List<MetricsInfo> headers;
-    private CircularFifoQueue<Metrics> perfMetrics;
+    private CircularFifoQueue<Metrics<T>> perfMetrics;
     private long lastTimeStamp;
 
 
@@ -24,8 +24,8 @@ public class RingPerfMetrics implements PerfMetrics {
         lastTimeStamp = 0L;
     }
 
-    void add(String data, long timeStamp) {
-        perfMetrics.add(new Metrics(data, timeStamp));
+    void add(T data, long timeStamp) {
+        perfMetrics.add(new Metrics<>(data, timeStamp));
         lastTimeStamp = timeStamp;
     }
 
@@ -61,7 +61,7 @@ public class RingPerfMetrics implements PerfMetrics {
     }
 
     @Override
-    public String getRaw(int index) {
+    public T getRaw(int index) {
         return perfMetrics.get(index).data;
     }
 
@@ -88,11 +88,11 @@ public class RingPerfMetrics implements PerfMetrics {
     }
 
 
-    private static class Metrics {
-        private String data;
+    private static class Metrics<T> {
+        private T data;
         long timeStamp;
 
-        Metrics(String data, long timeStamp) {
+        Metrics(T data, long timeStamp) {
             this.data = data;
             this.timeStamp = timeStamp;
         }

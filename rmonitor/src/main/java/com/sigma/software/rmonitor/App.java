@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 
 public class App extends Application {
 
-    private static final int PERF_BUFFER_SIZE = 256;
+    private static final int PERF_BUFFER_SIZE = 200;
 
     private static PerformanceMonitor monitor;
     private static MonitorScene scene;
@@ -26,7 +26,7 @@ public class App extends Application {
         }
 
         Resources.init("ru", "RU");
-        RingPerfRecorder recorder = new RingPerfRecorder(PERF_BUFFER_SIZE);
+        RingPerfRecorder<String> recorder = new RingPerfRecorder<>(PERF_BUFFER_SIZE);
         Configuration configuration = Configuration.load(args[0]);
         monitor = new PerformanceMonitor(configuration, recorder);
         scene = new MonitorScene(configuration, recorder);
@@ -36,7 +36,7 @@ public class App extends Application {
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle(Labels.APP_TITLE.get());
-        primaryStage.setScene(scene.create());
+        primaryStage.setScene(scene.create(1024.0, 768.0));
         primaryStage.show();
         monitor.startMonitor();
         scene.startMonitor();
