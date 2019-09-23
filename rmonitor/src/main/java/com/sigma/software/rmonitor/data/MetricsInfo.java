@@ -3,10 +3,13 @@ package com.sigma.software.rmonitor.data;
 import java.util.StringJoiner;
 
 
+/**
+ * Metrics information: printable name and kind of usage.
+ */
 public class MetricsInfo {
 
-    private String name;
-    private MetricsKind kind;
+    private final String name;
+    private final MetricsKind kind;
 
 
     public MetricsInfo(String name, MetricsKind kind) {

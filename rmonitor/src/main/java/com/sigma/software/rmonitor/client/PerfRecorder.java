@@ -10,7 +10,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 public interface PerfRecorder<D> {
 
     /**
-     * Writes records.
+     * Writes records. Implementation should be optimized to write operation.
      * @param record the record, {@link org.apache.kafka.clients.consumer.ConsumerRecord ConsumerRecord}
      */
     void write(ConsumerRecord<String, D> record);

@@ -7,9 +7,9 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
 import org.apache.kafka.common.header.Headers;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -20,12 +20,12 @@ import java.util.Set;
  */
 public class RingPerfRecorder<D> implements PerfRecorder<D>, ObservableHosts<D> {
 
-    private Map<String, RingPerfMetrics<D>> perfData;
-    private int dataSize;
+    private final Map<String, RingPerfMetrics<D>> perfData;
+    private final int dataSize;
 
 
     public RingPerfRecorder(int size) {
-        perfData = new HashMap<>();
+        perfData = new ConcurrentHashMap<>();
         dataSize = size;
     }
 

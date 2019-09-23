@@ -10,6 +10,8 @@ import com.sigma.software.rmonitor.ui.MonitorScene;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
+import java.util.concurrent.TimeUnit;
+
 
 public class App extends Application {
 
@@ -28,7 +30,8 @@ public class App extends Application {
         Resources.init("ru", "RU");
         RingPerfRecorder<String> recorder = new RingPerfRecorder<>(PERF_BUFFER_SIZE);
         Configuration configuration = Configuration.load(args[0]);
-        monitor = new PerformanceMonitor(configuration, recorder);
+        long seekPosition = System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(PERF_BUFFER_SIZE + 32);
+        monitor = new PerformanceMonitor(configuration, recorder, seekPosition);
         scene = new MonitorScene(configuration, recorder);
         launch(args);
     }

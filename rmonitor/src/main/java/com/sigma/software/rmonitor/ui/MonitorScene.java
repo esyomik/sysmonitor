@@ -20,10 +20,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class MonitorScene {
 
-    private long updatePeriod;
+    private final long updatePeriod;
     private Timer timer;
-    private ComputerList computersView;
-    private CountersView metricsView;
+    private final ComputerList computersView;
+    private final CountersView metricsView;
 
 
     /**
@@ -32,7 +32,7 @@ public class MonitorScene {
      * @param hosts the object which provides measured data from the observed
      *              host, see {@link ObservableHosts}
      */
-    public MonitorScene(Configuration configuration, ObservableHosts hosts) {
+    public MonitorScene(Configuration configuration, ObservableHosts<String> hosts) {
         updatePeriod = TimeUnit.SECONDS.toMillis(configuration.updatePeriod());
         metricsView = new CountersView();
         computersView = new ComputerList(metricsView, hosts);

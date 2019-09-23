@@ -8,10 +8,10 @@ import java.io.FileReader;
 
 public class Configuration {
 
-    String brokers;
-    String topic;
-    String groupId;
-    long period;
+    final String brokers;
+    final String topic;
+    final String groupId;
+    private final long period;
 
 
     private Configuration() {

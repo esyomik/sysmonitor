@@ -10,6 +10,11 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
+/**
+ * Counters view. It reorders children controls {@link CounterChart} into a grid.
+ * Currently it isn't intended to show a lot of metrics, because of it always
+ * tries to fit children controls to a single no scrollable page.
+ */
 class CountersView {
 
     private PerfCounters<String> counters;
@@ -17,12 +22,20 @@ class CountersView {
     private CounterChart[] charts;
 
 
+    /**
+     * Constructs an empty object.
+     */
     CountersView(){
         counters = null;
         view = null;
         charts = null;
     }
 
+    /**
+     * Creates view. This method doesn't create children widgets. They are created
+     * dynamically in {@link #update() update()} function
+     * @return created view node, see {@link javafx.scene.Node}
+     */
     Node create() {
         view = new GridPane();
         view.setGridLinesVisible(false);
@@ -32,6 +45,10 @@ class CountersView {
         return view;
     }
 
+    /**
+     * Updates widgets for the current observable machine. This method also
+     * creates children widgets dynamically if it is necessary.
+     */
     void update() {
         if (counters == null) {
             destroyWidgets();
@@ -58,12 +75,18 @@ class CountersView {
             }
             String data = counters.getRaw(iData);
             String[] parsedData = data.split(";");
-            for (int iMetrics = 0; iMetrics < numMetrics; ++iMetrics) {
+            int nData = Math.min(numMetrics, parsedData.length);
+            for (int iMetrics = 0; iMetrics < nData; ++iMetrics) {
                 charts[iMetrics].addMeasure(dTime, Double.parseDouble(parsedData[iMetrics]));
             }
         }
     }
 
+    /**
+     * Sets metrics to display and updates view, see {@link #update() update()}
+     * function
+     * @param counters the counters to show, see {@link PerfCounters}
+     */
     void setCounters(PerfCounters<String> counters) {
         this.counters = counters;
         update();
@@ -73,10 +96,7 @@ class CountersView {
         destroyWidgets();
         List<MetricsInfo> metricsInfo = counters.getMetricsInfo();
         int numCharts = metricsInfo.size();
-        int numColumn = 1;
-        if (numCharts > 5) {
-            numColumn = numCharts > 11 ? 3 : 2;
-        }
+        int numColumn = (int) Math.sqrt(numCharts);
 
         charts = new CounterChart[numCharts];
         int row = 0;

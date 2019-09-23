@@ -13,8 +13,8 @@ import java.util.List;
 
 public class RingPerfMetrics<T> implements PerfCounters<T> {
 
-    private List<MetricsInfo> headers;
-    private CircularFifoQueue<Metrics<T>> perfMetrics;
+    private final List<MetricsInfo> headers;
+    private final CircularFifoQueue<Metrics<T>> perfMetrics;
     private long lastTimeStamp;
 
 
@@ -24,7 +24,7 @@ public class RingPerfMetrics<T> implements PerfCounters<T> {
         lastTimeStamp = 0L;
     }
 
-    void add(T data, long timeStamp) {
+    synchronized void add(T data, long timeStamp) {
         perfMetrics.add(new Metrics<>(data, timeStamp));
         lastTimeStamp = timeStamp;
     }
@@ -33,10 +33,13 @@ public class RingPerfMetrics<T> implements PerfCounters<T> {
         if (isEqual(headers, newHeaders)) {
             return;
         }
-        perfMetrics.clear();
-        headers.clear();
-        for (Header h : newHeaders) {
-            headers.add(new MetricsInfo(h.key(), MetricsKind.create(h.value()[0])));
+
+        synchronized (this) {
+            perfMetrics.clear();
+            headers.clear();
+            for (Header h : newHeaders) {
+                headers.add(new MetricsInfo(h.key(), MetricsKind.create(h.value()[0])));
+            }
         }
     }
 
@@ -46,7 +49,7 @@ public class RingPerfMetrics<T> implements PerfCounters<T> {
     }
 
     @Override
-    public int size() {
+    synchronized public int size() {
         return perfMetrics.size();
     }
 
@@ -56,17 +59,17 @@ public class RingPerfMetrics<T> implements PerfCounters<T> {
     }
 
     @Override
-    public long getTimestamp(int index) {
+    synchronized public long getTimestamp(int index) {
         return perfMetrics.get(index).timeStamp;
     }
 
     @Override
-    public T getRaw(int index) {
+    synchronized public T getRaw(int index) {
         return perfMetrics.get(index).data;
     }
 
     @Override
-    public List<MetricsInfo> getMetricsInfo() {
+    synchronized public List<MetricsInfo> getMetricsInfo() {
         return Collections.unmodifiableList(headers);
     }
 
@@ -89,8 +92,8 @@ public class RingPerfMetrics<T> implements PerfCounters<T> {
 
 
     private static class Metrics<T> {
-        private T data;
-        long timeStamp;
+        private final T data;
+        final long timeStamp;
 
         Metrics(T data, long timeStamp) {
             this.data = data;

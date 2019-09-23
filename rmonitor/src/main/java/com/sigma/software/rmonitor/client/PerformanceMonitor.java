@@ -1,62 +1,69 @@
 package com.sigma.software.rmonitor.client;
 
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.common.PartitionInfo;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
 import java.time.Duration;
-import java.util.Collections;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 
+/**
+ * Monitor to trace performance metrics. It reads messages from the all partitions.
+ */
 public class PerformanceMonitor {
 
-    private String topic;
-    private PerfRecorder<String> recorder;
-    private KafkaConsumer<String, String> consumer;
-    private ExecutorService executor;
+    private final String topic;
+    private final PerfRecorder<String> recorder;
+    private final KafkaConsumer<String, String> consumer;
+    private final ExecutorService executor;
+    private final long seekPosition;
 
 
     /**
-     * Constructs monitor.
+     * Constructs monitor and seeks to specific timestamp position.
      * @param configuration the configuration to initialize monitor, see {@link Configuration}
      * @param recorder the performance metrics recorder, see {@link PerfRecorder}
+     * @param timestamp unix timestamp in milliseconds to seek to
      */
-    public PerformanceMonitor(Configuration configuration, PerfRecorder<String> recorder) {
-        this.topic = configuration.topic;
+    public PerformanceMonitor(Configuration configuration, PerfRecorder<String> recorder, long timestamp) {
+        topic = configuration.topic;
         this.recorder = recorder;
+        executor = Executors.newFixedThreadPool(1);
+        seekPosition = timestamp;
+
         Properties props = new Properties();
         props.put("bootstrap.servers", configuration.brokers);
-        props.put("group.id", configuration.groupId); // TODO add hostname to groupId
-        props.setProperty("enable.auto.commit", "true");
-        props.setProperty("auto.commit.interval.ms", "1000");
+        props.put("group.id", configuration.groupId); // TODO add hostname and path to the app directory to groupId
+        props.put("enable.auto.commit", "false");
         props.put("key.deserializer", StringDeserializer.class.getName());
         props.put("value.deserializer", StringDeserializer.class.getName());
-        this.consumer = new KafkaConsumer<>(props);
-        this.executor = Executors.newFixedThreadPool(1);
+        consumer = new KafkaConsumer<>(props);
     }
 
     /**
-     * Runs monitoring performance metrics.
+     * Runs monitoring metrics. It reads messages from the all partitions. This
+     * method doesn't commit offsets because it assumes that the application
+     * tries to seek to particular timestamp when it runs.
      */
     public void startMonitor() {
         executor.submit(() -> {
             System.out.println("Running consumer...");
             try {
-                consumer.subscribe(Collections.singleton(topic));
+                seekToTimestamp(seekPosition);
                 while (true) {
-                    ConsumerRecords<String, String> records = consumer.poll(Duration.ofDays(7));
-                    for (ConsumerRecord<String, String> record : records) {
-                        recorder.write(record);
-                    }
+                    readFromAllPartitions(consumer.poll(Duration.ofDays(7)));
                 }
             } catch (WakeupException exception) {
                 /*SUPPRESSED*/
+            } catch (Exception exception) {
+                System.out.println("Can't start monitoring.");
+                exception.printStackTrace();
             } finally {
                 consumer.close();
             }
@@ -80,4 +87,40 @@ public class PerformanceMonitor {
         } catch (InterruptedException exception) {/*SUPPRESSED*/}
     }
 
+    private void readFromAllPartitions(ConsumerRecords<String, String> records) {
+        for (TopicPartition partition : records.partitions()) {
+            List<ConsumerRecord<String, String>> partitionRecords = records.records(partition);
+            for (ConsumerRecord<String, String> record : partitionRecords) {
+                recorder.write(record);
+            }
+        }
+    }
+
+    private void readFromDefaultPartition(ConsumerRecords<String, String> records) {
+        for (ConsumerRecord<String, String> record : records) {
+            recorder.write(record);
+        }
+    }
+
+    // Seeks reading cursor to a particular position. This method also assigns
+    // partitions to the consumer, so don't call method KafkaConsumer.subscribe().
+    private void seekToTimestamp(long timestamp) {
+        List<PartitionInfo> partitions = consumer.partitionsFor(topic);
+        if (partitions == null || partitions.size() == 0) {
+            return;
+        }
+
+        Map<TopicPartition, Long> timestamps = new HashMap<>();
+        for (int i = 0; i < partitions.size(); ++i) {
+            timestamps.put(new TopicPartition(topic, i), timestamp);
+        }
+        consumer.assign(timestamps.keySet());
+
+        Map<TopicPartition, OffsetAndTimestamp> offsets = consumer.offsetsForTimes(timestamps);
+        for (Map.Entry<TopicPartition, OffsetAndTimestamp> entry : offsets.entrySet()) {
+            if (entry.getValue() != null) {
+                consumer.seek(entry.getKey(), entry.getValue().offset());
+            }
+        }
+    }
 }
