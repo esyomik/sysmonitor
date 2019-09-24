@@ -1,0 +1,27 @@
+{
+    "brokers": "WS329.i.sigmaukraine.com:9092",
+    "topic": "test",
+    "period": 1,
+    "metrics": [
+        {
+            "name": "CPU total time, percent",
+            "counter": "\\Processor(_Total)\\% Processor Time",
+            "kind": "PERCENT"
+        },
+        {
+            "name": "Physical memory usage, percent",
+            "counter": "\\Memory\\% Committed Bytes In Use",
+            "kind": "PERCENT"
+        },
+        {
+            "name": "Physical disk read/write, percent",
+            "counter": "\\PhysicalDisk(_Total)\\% Disk Time",
+            "kind": "PERCENT"
+        },
+        {
+            "name": "IPv4 datagrams, datagramm/sec",
+            "counter": "\\\\UGINPC\\IPv4\\Datagrams/sec",
+            "kind": "VALUE"
+        }
+    ]
+}
