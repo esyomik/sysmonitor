@@ -1,0 +1,6 @@
+{
+  "brokers": "WS329.i.sigmaukraine.com:9092",
+  "topic": "test",
+  "period": 1,
+  "groupId": "PerformanceMonitor"
+}
