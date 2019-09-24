@@ -22,12 +22,12 @@ public class App extends Application {
 
 
     public static void main(String[] args) {
+        Resources.init("ru", "RU");
         if (args.length < 1) {
             System.out.println(Messages.ERR_CONFIG_NOT_FOUND.get());
             return;
         }
 
-        Resources.init("ru", "RU");
         RingPerfRecorder<String> recorder = new RingPerfRecorder<>(PERF_BUFFER_SIZE);
         Configuration configuration = Configuration.load(args[0]);
         long seekPosition = System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(PERF_BUFFER_SIZE + 32);
