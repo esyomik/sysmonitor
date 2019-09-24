@@ -28,7 +28,8 @@ int main(int argc, char **argv) {
         }
 
         // uncomment next row for testing your own metrics only
-        //return counters.traceMetrics(counters, 10);
+        //counters.traceMetrics(10, 1);
+        //return 0;
 
         auto brokers = config["brokers"].get<std::string>();
         auto topic = config["topic"].get<std::string>();

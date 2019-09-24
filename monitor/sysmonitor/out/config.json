@@ -6,7 +6,7 @@
         {
             "name": "CPU total time, percent",
             "counter": "\\Processor(_Total)\\% Processor Time",
-            "kind":  "PERCENT"
+            "kind": "PERCENT"
         },
         {
             "name": "Physical memory usage, percent",
@@ -17,6 +17,11 @@
             "name": "Physical disk read/write, percent",
             "counter": "\\PhysicalDisk(_Total)\\% Disk Time",
             "kind": "PERCENT"
+        },
+        {
+            "name": "IPv4 datagrams, datagramm/sec",
+            "counter": "\\\\UGINPC\\IPv4\\Datagrams/sec",
+            "kind": "VALUE"
         }
     ]
 }
