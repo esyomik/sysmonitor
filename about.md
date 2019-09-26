@@ -1,7 +1,9 @@
 ## Remote system monitor.
 The main purpose is creating applications to demonstrate usage of the Apache Kafka message broker. This application consists from the following parts:
 - **sysmonitor** it is a native Windows application that gathers system metrics and sends them to a specific topic; the metrics for gathering are read from the configuration file
-- **rmonitor** it is a Java application that reads topic with metrics and displays it.
+- **rmonitor** it is a Java application that reads topic with metrics and displays it.  
+
+This document describes only unsecure connection. You can add authorization using certificates as described in [security.md](security.md).
 
 ### Install environment (Windows)
 #### Install and configure *Zookeeper*
@@ -53,9 +55,11 @@ it will start the zookeeper on the defualt port which is 2181; you can change th
 ### Configuration file for sysmonitor
 ``` JSON
 {
-    "brokers": "WS329.i.sigmaukraine.com:9092",
     "topic": "test",
     "period": 1,
+    "kafka" : {
+        "bootstrap.servers": "WS329.i.sigmaukraine.com:9093"
+    },
     "metrics": [
         {
             "name": "CPU total time, percent",
@@ -70,30 +74,32 @@ it will start the zookeeper on the defualt port which is 2181; you can change th
     ]
 }
 ```
-**brokers** the list of adresses with ports of brokers  
+**kafka** configuration parameters for kafka client, see [CONFIGURATION.md](CONFIGURATION.md) for detailed description and [security.md](security.md) to configure secure connection  
 **topic** the name of topic to send messages; this name should be match with name of previously created topic  
-**period** the period to gather system metrics  
+**period** the period in seconds to gather system metrics  
 **metrics** array of observing metrics  
 
 _Metrics entries:_  
-**name** name of metrics  
-**counter** the name of counter; you can determine list of available counters using PowerShell as described here https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.diagnostics/get-counter?view=powershell-5.1  
+**name** name of the metrics  
+**counter** name of the counter; you can determine list of available counters using PowerShell as described here https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.diagnostics/get-counter?view=powershell-5.1  
 **kind** type of metrics; one of:  
 - PERCENT the value in [0..100] range
-- VALUE the value; rmonitor will adapt scale automatically
+- VALUE the value; *rmonitor* will adapt a chart scale automatically
 - ACCUMULATED accumulated value, e.g. number of sent packages  
 > If particular metrics is not recognized, then it will be skipped
 
 ### Configuration file for rmonitor
-``` JSON
-{
-  "brokers": "WS329.i.sigmaukraine.com:9092",
-  "topic": "test",
-  "period": 1,
-  "groupId": "PerformanceMonitor"
-}
-```
-**brokers** the list of adresses with ports of brokers  
-**topic** the name of topic to send messages; this name should be match with name of previously created topic  
-**period** the period to update system metrics  
-**groupId** the identifier of consumer group; **note:** identifier should be unique for each instance of rmonitor application
+Rmonitor is configured using *properties* file. See also [security.md](security.md) to configure secure connection
+``` properties
+# the list of adresses with ports of brokers
+bootstrap.servers=WS329.i.sigmaukraine.com:9093
+# the identifier of consumer group
+group.id=PerformanceMonitor
+# disable auto commits for better performance
+enable.auto.commit=false
+# the name of topic to receive messages
+topic.name=test
+# the period to update system metrics
+update.period.seconds=2
+```  
+> **Note.** The group identifier should be unique for each instance of the *rmonitor* application

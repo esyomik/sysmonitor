@@ -3,6 +3,15 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="out\config.json" />
+    <None Include="..\..\CONFIGURATION.md">
+      <Filter>docs</Filter>
+    </None>
+    <None Include="..\..\about.md">
+      <Filter>docs</Filter>
+    </None>
+    <None Include="..\..\security.md">
+      <Filter>docs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c" />
@@ -27,6 +36,9 @@
   <ItemGroup>
     <Filter Include="third">
       <UniqueIdentifier>{74542abc-c2e4-4e70-9f07-8abf5154cc3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="docs">
+      <UniqueIdentifier>{dd220348-d2f4-4f33-9b4d-6f1284064840}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

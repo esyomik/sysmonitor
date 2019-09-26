@@ -4,8 +4,9 @@
 #include "sys-counters.hpp"
 
 
-Metrics::Metrics(const std::string& kind, const std::string& name, PDH_HCOUNTER counter)
-    : kind_(kindFromString(kind))
+Metrics::Metrics(const std::string& id, const std::string& kind, const std::string& name, PDH_HCOUNTER counter)
+    : id_(id)
+    , kind_(kindFromString(kind))
     , name_(name)
     , counter_(counter) {}
 
@@ -46,7 +47,7 @@ bool SysCounters::addMetrics(const std::string& name, const std::string& counter
     if (ERROR_SUCCESS != status) {
         return false;
     }
-    counters_.emplace_back(Metrics(kind, name, hCounter));
+    counters_.emplace_back(Metrics(counter, kind, name, hCounter));
     return true;
 }
 
@@ -57,7 +58,7 @@ void SysCounters::collect() const {
 
 
 int SysCounters::count() const {
-    return counters_.size();
+    return (int) counters_.size();
 }
 
 

@@ -6,11 +6,17 @@ import com.sigma.software.rmonitor.data.PerfCounters;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.apache.kafka.common.header.Header;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 
+/**
+ * Collection of metrics got from the particular host.
+ * @param <T> the type of data
+ */
 public class RingPerfMetrics<T> implements PerfCounters<T> {
 
     private final List<MetricsInfo> headers;
@@ -38,7 +44,10 @@ public class RingPerfMetrics<T> implements PerfCounters<T> {
             perfMetrics.clear();
             headers.clear();
             for (Header h : newHeaders) {
-                headers.add(new MetricsInfo(h.key(), MetricsKind.create(h.value()[0])));
+                byte[] value = h.value();
+                byte[] nameBytes = Arrays.copyOfRange(value, 1, value.length);
+                String name = new String(nameBytes, StandardCharsets.UTF_8);
+                headers.add(new MetricsInfo(h.key(), name, MetricsKind.create(value[0])));
             }
         }
     }
@@ -83,7 +92,7 @@ public class RingPerfMetrics<T> implements PerfCounters<T> {
         }
 
         for(int i = 0; i < newHeaders.length; ++i) {
-            if (!headers.get(i).getName().equals(newHeaders[i].key())) {
+            if (!headers.get(i).getId().equals(newHeaders[i].key())) {
                 return false;
             }
         }

@@ -27,23 +27,19 @@ public class PerformanceMonitor {
 
     /**
      * Constructs monitor and seeks to specific timestamp position.
-     * @param configuration the configuration to initialize monitor, see {@link Configuration}
+     * @param configuration the configuration to initialize monitor, see {@link Properties}
      * @param recorder the performance metrics recorder, see {@link PerfRecorder}
      * @param timestamp unix timestamp in milliseconds to seek to
      */
-    public PerformanceMonitor(Configuration configuration, PerfRecorder<String> recorder, long timestamp) {
-        topic = configuration.topic;
+    public PerformanceMonitor(Properties configuration, PerfRecorder<String> recorder, long timestamp) {
+        topic = configuration.getProperty("topic.name");
         this.recorder = recorder;
         executor = Executors.newFixedThreadPool(1);
         seekPosition = timestamp;
 
-        Properties props = new Properties();
-        props.put("bootstrap.servers", configuration.brokers);
-        props.put("group.id", configuration.groupId); // TODO add hostname and path to the app directory to groupId
-        props.put("enable.auto.commit", "false");
-        props.put("key.deserializer", StringDeserializer.class.getName());
-        props.put("value.deserializer", StringDeserializer.class.getName());
-        consumer = new KafkaConsumer<>(props);
+        configuration.put("key.deserializer", StringDeserializer.class.getName());
+        configuration.put("value.deserializer", StringDeserializer.class.getName());
+        consumer = new KafkaConsumer<>(configuration);
     }
 
     /**

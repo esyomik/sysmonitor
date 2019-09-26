@@ -17,10 +17,15 @@ public:
     };
 
 public:
-    Metrics(const std::string& kind, const std::string& name, PDH_HCOUNTER counter);
+    Metrics(const std::string& id, const std::string& kind, const std::string& name, PDH_HCOUNTER counter);
 
     /**
-    * Returns kind of metrics.
+     * Returns unique identifier of metrics. Identifier always contains only ASCII characters.
+     * @return string representation of metrics identifier
+     */
+    inline const std::string& getId() const {return id_;}
+    /**
+    * Returns kind of metrics, @see Kind
     * @return kind of metrics
     */
     inline Kind getKind() const {return kind_;}
@@ -41,6 +46,7 @@ public:
     static Kind kindFromString(const std::string& kind);
 
 private:
+    std::string id_;
     Kind kind_;
     std::string name_;
     PDH_HCOUNTER counter_;

@@ -19,6 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\about.md" />
+    <None Include="..\..\CONFIGURATION.md" />
+    <None Include="..\..\security.md" />
     <None Include="out\config.json" />
     <None Include="packages.config" />
   </ItemGroup>

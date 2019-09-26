@@ -1,7 +1,16 @@
 {
-    "brokers": "WS329.i.sigmaukraine.com:9092",
     "topic": "test",
     "period": 1,
+
+    "kafka": {
+        "bootstrap.servers": "WS329.i.sigmaukraine.com:9093",
+        "security.protocol": "ssl",
+        "ssl.certificate.location": "UGINPC_client.pem",
+        "ssl.ca.location": "ca-cert",
+        "ssl.key.location": "UGINPC_client.key",
+        "ssl.key.password": "Qr41&Zk"
+    },
+
     "metrics": [
         {
             "name": "CPU total time, percent",

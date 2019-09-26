@@ -1,6 +1,5 @@
 package com.sigma.software.rmonitor.ui;
 
-import com.sigma.software.rmonitor.client.Configuration;
 import com.sigma.software.rmonitor.data.ObservableHosts;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -9,6 +8,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 
+import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -28,12 +28,13 @@ public class MonitorScene {
 
     /**
      * Constructs scene object.
-     * @param configuration the app configuration, see {@link Configuration}
+     * @param configuration the app configuration, see {@link Properties}
      * @param hosts the object which provides measured data from the observed
      *              host, see {@link ObservableHosts}
      */
-    public MonitorScene(Configuration configuration, ObservableHosts<String> hosts) {
-        updatePeriod = TimeUnit.SECONDS.toMillis(configuration.updatePeriod());
+    public MonitorScene(Properties configuration, ObservableHosts<String> hosts) {
+        updatePeriod = TimeUnit.SECONDS.toMillis(Long.parseLong(
+                configuration.getProperty("update.period.seconds", "2")));
         metricsView = new CountersView();
         computersView = new ComputerList(metricsView, hosts);
     }
