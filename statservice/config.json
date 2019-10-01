@@ -1,0 +1,66 @@
+{
+  "kafkaPerfProperties" : {
+    "bootstrap.servers": "WS329.i.sigmaukraine.com:9093",
+    "topic.name": "test",
+    "group.id": "StatService",
+    "enable.auto.commit": "true",
+    "auto.commit.interval.ms": "1000",
+    "ssl.keystore.location": "C:/JavaProjects/test/sysmonitor/rmonitor/WS329.keystore.jks",
+    "ssl.keystore.password": "Qr41&Zk",
+    "ssl.key.password": "Qr41&Zk",
+    "ssl.keystore.type": "JKS",
+    "security.protocol": "SSL",
+    "ssl.truststore.location": "C:/JavaProjects/test/sysmonitor/rmonitor/client.truststore.jks",
+    "ssl.truststore.password": "Qr41&Zk",
+    "ssl.truststore.type": "JKS"
+  },
+  "recorders" : [
+    {
+      "type": "CONSOLIDATED_STATISTIC",
+      "duration": 60,
+      "inputName": ".*",
+      "output": [
+        {
+          "serializer": "PLAIN",
+          "destination": "STDOUT"
+        },
+        {
+          "serializer": "JSON",
+          "destination": "STDOUT"
+        },
+        {
+          "serializer": "XML",
+          "destination": "STDOUT"
+        },
+        {
+          "serializer": "BINARY",
+          "destination": "STDOUT"
+        }
+      ]
+    },
+    {
+      "type": "STATISTIC",
+      "duration": 60,
+      "inputName": ".*",
+      "output": [
+        {
+          "serializer": "XML",
+          "destination": "FILE",
+          "properties": {
+            "filename": "D:/statistics.txt",
+            "charset": "UTF-8"
+          }
+        },
+        {
+          "serializer": "JSON",
+          "destination": "TOPIC",
+          "properties": {
+            "bootstrap.servers": "WS329.i.sigmaukraine.com:9092",
+            "topic.name": "statistics",
+            "client.id": "StatService"
+          }
+        }
+      ]
+    }
+  ]
+}
