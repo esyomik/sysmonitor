@@ -150,7 +150,8 @@ update.period.seconds=2
           "destination": "FILE",
           "properties": {
             "filename": "D:/statistics.txt",
-            "charset": "UTF-8"
+            "charset": "UTF-8",
+            "format": "#%s\n%s\n\n"
           }
         },
         {

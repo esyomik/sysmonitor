@@ -90,7 +90,8 @@ public class StatisticRecorder implements PerfRecorder<String> {
             try {
                 if (!channel.write(hostName, metricsValues, nrValues, headers)) {
                     if (!headers.isEmpty()) {
-                        System.out.format("WARNING: Statistical data isn't written. %s\n", className);
+                        System.out.format("WARNING: Statistical data for host " +
+                                "'%s' isn't written. %s\n", hostName, className);
                     }
                     return;
                 }

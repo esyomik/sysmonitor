@@ -48,7 +48,8 @@
           "destination": "FILE",
           "properties": {
             "filename": "D:/statistics.txt",
-            "charset": "UTF-8"
+            "charset": "UTF-8",
+            "format": "#Key:%s\n%s\n\n"
           }
         },
         {

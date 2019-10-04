@@ -52,7 +52,7 @@ public class NamedStatistics {
      * @return <code>true</code> if measurements is successfully added to statistics
      */
     public boolean putValues(double[] metricsValues, int nrValues, int[] mapper) {
-        if (mapper == null || statistics.isEmpty() || statistics.size() != mapper.length) {
+        if (mapper == null || statistics.isEmpty() || statistics.size() < mapper.length) {
             return false;
         }
 
